@@ -18,25 +18,25 @@ services:
       timeout: 5s
       retries: 5
   
-  web:
-    build:
-      context: .
-    environment:
-      NODE_ENV: development
-    ports:
-      - "3000:3000"
-    depends_on:
-      db:
-        condition: service_healthy
-    develop:
-      watch:
-        - action: sync
-          path: .
-          target: /app
-          ignore:
-            - node_modules/
-        - action: rebuild
-          path: package.json
+  # web:
+  #   build:
+  #     context: .
+  #   environment:
+  #     NODE_ENV: development
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   develop:
+  #     watch:
+  #       - action: sync
+  #         path: .
+  #         target: /app
+  #         ignore:
+  #           - node_modules/
+  #       - action: rebuild
+  #         path: package.json
     
 
 volumes:
