@@ -9,7 +9,59 @@ datasource db {
 }
 
 model Users {
-  id Int @id @default(autoincrement())
-  name String @unique
-  created_at DateTime @default(now())
+  id         Int          @id @default(autoincrement())
+  name       String       @unique
+  created_at DateTime     @default(now())
+  Annotation Annotation[]
+}
+
+model Metrics {
+  id         Int          @id @default(autoincrement())
+  name       String       @unique
+  definition String
+  createdAt  DateTime     @default(now())
+  Annotation Annotation[]
+}
+
+model Conversations {
+  id                   String                 @id
+  createdAt            DateTime               @default(now())
+  ConversationMessages ConversationMessages[]
+  Annotation           Annotation[]
+}
+
+model ConversationMessages {
+  id             Int           @id @default(autoincrement())
+  conversationId String
+  conversation   Conversations @relation(fields: [conversationId], references: [id])
+  turnNumber     Int
+  role           Role
+  content        String
+  createdAt      DateTime      @default(now())
+}
+
+model Annotation {
+  id             Int           @id @default(autoincrement())
+  userId         Int
+  user           Users         @relation(fields: [userId], references: [id])
+  conversationId String
+  conversation   Conversations @relation(fields: [conversationId], references: [id])
+  metricId       Int
+  metric         Metrics       @relation(fields: [metricId], references: [id])
+  verdict        Verdict
+  comments       String?
+  createdAt      DateTime      @default(now())
+
+  @@unique([userId, conversationId, metricId], name: "annotations_user_conversation_metric_unique")
+}
+
+enum Role {
+  user
+  assistant
+  system
+}
+
+enum Verdict {
+  pass
+  fail
 }
