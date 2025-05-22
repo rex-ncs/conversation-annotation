@@ -1,4 +1,8 @@
+"use server"
+
+import { cookies } from 'next/headers';
 import { PrismaClient } from '../../lib/generated/prisma';
+import { redirect } from 'next/navigation';
 
 const prisma = new PrismaClient();
 
@@ -16,7 +20,13 @@ export async function register(name: string) {
 export async function login(name: string) {
   const user = await prisma.users.findUnique({ where: { name } });
   if (!user) return { success: false, error: 'User not found.' };
-  return { success: true, user };
+  (await cookies()).set('user', JSON.stringify(user));
+  redirect('/annotate');
+}
+
+export async function logout() {
+  (await cookies()).delete('user');
+  redirect('/')
 }
 
 export async function verify(name: string) {
