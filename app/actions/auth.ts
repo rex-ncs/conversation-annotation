@@ -21,7 +21,7 @@ export async function login(name: string) {
   const user = await prisma.users.findUnique({ where: { name } });
   if (!user) return { success: false, error: 'User not found.' };
   (await cookies()).set('user', JSON.stringify(user));
-  redirect('/annotate');
+  return { success: true, user };
 }
 
 export async function logout() {
