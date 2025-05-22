@@ -1,13 +1,46 @@
 services:
   db:
     image: postgres:15-alpine
+    restart: always
+    user: postgres
+    secrets:
+      - db-password
+    volumes:
+      - db-data:/var/lib/postgresql/data
     environment:
-      POSTGRES_PASSWORD: postgres
+      - POSTGRES_DB=annotation
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
     ports:
       - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  web:
+    build:
+      context: .
+    environment:
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
     
 
 volumes:
-  postgres_data:
+  db-data:
+secrets:
+  db-password:
+    file: db/password.txt
