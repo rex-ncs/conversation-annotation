@@ -33,3 +33,17 @@ export async function verify(name: string) {
   const user = await prisma.users.findUnique({ where: { name } });
   return !!user;
 }
+
+export async function getLoggedInUser() {
+  const user = (await cookies()).get('user');
+  if (!user) {
+    return null
+  };
+  const parsedUser = JSON.parse(user.value);
+  const dbUser = await prisma.users.findUnique({ where: { id: parsedUser.id } });
+  if (!dbUser) {
+    (await cookies()).delete('user');
+    return null
+  }
+  return dbUser;
+}

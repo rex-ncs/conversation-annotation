@@ -9,20 +9,16 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { login } from "@/app/actions/auth"
-import { useRouter } from "next/router"
 
 export function LoginForm() {
   const [name, setName] = useState("")
-  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (name.trim()) {
-      const { success, error, user } = await login(name)
+      const { success, error } = await login(name)
       if (!success) alert(error)
-      localStorage.setItem("user", JSON.stringify(user))
-      router.push("/annotate")
     }
   }
 

@@ -1,6 +1,12 @@
 import { LoginForm } from "@/components/login-form"
+import { getLoggedInUser } from "./actions/auth";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+export default async function Home() {
+  const user = await getLoggedInUser();
+  if (user) {
+    redirect("/annotate")
+  }
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gray-50">
       <div className="w-full max-w-md mx-auto">
@@ -11,6 +17,5 @@ export default function Home() {
         <LoginForm />
       </div>
     </main>
-  )
-  
+  );
 }
