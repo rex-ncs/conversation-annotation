@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 export default async function Home() {
   const user = await getLoggedInUser();
   if (user) {
-    redirect("/annotate")
+    redirect("/dashboard")
   }
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gray-50">
