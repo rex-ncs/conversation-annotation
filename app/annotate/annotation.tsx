@@ -23,6 +23,17 @@ export default function Annotation({user}: AnnotationProps) {
     const metricId = searchParams.get("metricId");
     const conversationId = searchParams.get("conversationId");
 
+    if (!metricId) {
+      return (
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-3xl font-bold m-2">No Conversations Available</h1>
+          <p className="text-muted-foreground">
+            No metric provided. Please click on Start Annotation to begin.
+          </p>
+        </div>
+      );
+    }
+
     useEffect(() => {
       const fetchMetric = async () => {
           if (!metricId) {
