@@ -98,7 +98,7 @@ export default function AnnotateForm({
             <div className="space-y-2">
                 <Label>Evaluation</Label>
                 <RadioGroup
-                value={passed === null ? undefined : passed.toString()}
+                value={passed === null ? "" : passed.toString()}
                 onValueChange={(value) => setPassed(value === "true")}
                 >
                 <div className="flex items-center space-x-2">
