@@ -1,16 +1,71 @@
 "use client";
+import { create } from "domain";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card"
 import { Label } from "./ui/label";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Textarea } from "./ui/textarea";
 import { useState } from "react";
+import { createAnnotation } from "@/app/actions/annotation";
+import { Verdict } from "@/lib/generated/prisma";
 
-export default function AnnotateForm(){
+interface AnnotateFormProps {
+    userId: number;
+    conversationId: string;
+    metricId: number;
+    handleNextConversation: () => void;
+    handlePreviousConversation: () => void;
+}
+
+export default function AnnotateForm({
+    userId,
+    conversationId,
+    metricId,
+    handleNextConversation,
+    handlePreviousConversation
+}: AnnotateFormProps){
     const [passed, setPassed] = useState<boolean | null>(null);
     const [comment, setComment] = useState<string>("");
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const handleSubmit = () => {}
+
+    const validateForm = () => {
+        if (passed === null) {
+            alert("Please select an evaluation option.");
+            setIsSubmitting(false);
+            return false;
+        }
+        if (comment.trim() === "") {
+            alert("Please add a comment.");
+            setIsSubmitting(false);
+            return false;
+        }
+        return true;
+    }
+
+    const handleSubmit = async () => {
+        setIsSubmitting(true)
+        if (!validateForm()) {
+            return;
+        }
+        const payload = {
+            userId,
+            conversationId,
+            metricId,
+            verdict: passed ? Verdict.pass : Verdict.fail,
+            comments: comment
+        }
+
+        const { success, error } = await createAnnotation(payload);
+        if (!success) {
+            alert(error);
+            setIsSubmitting(false);
+            return;
+        }
+        handleNextConversation();
+        setIsSubmitting(false);
+        setPassed(null);
+        setComment("");
+    }
 
     return (
         <Card>
@@ -52,7 +107,12 @@ export default function AnnotateForm(){
             </div>
             </CardContent>
             <CardFooter>
-            <Button type="submit" className="w-full" disabled={passed === null || isSubmitting}>
+            <Button 
+                onClick={handleSubmit} 
+                type="submit"
+                className="w-full"
+                disabled={passed === null || isSubmitting}
+            >
                 {isSubmitting ? "Submitting..." : "Submit & Continue"}
             </Button>
             </CardFooter>

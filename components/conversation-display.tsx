@@ -2,11 +2,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Conversation } from "@/lib/types"
 
 interface ConversationDisplayProps {
-  conversation: Conversation
+  conversation: Conversation | null
 }
 
 export function ConversationDisplay({ conversation }: ConversationDisplayProps) {
-  const messages = conversation.messages
+  if (!conversation) {
+    return <div className="text-center text-muted-foreground">No conversation selected</div>
+  }
+
+  const messages = conversation.ConversationMessages
   return (
     <Card className="flex flex-col h-3/4">
       <CardHeader className="pb-2">

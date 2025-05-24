@@ -1,3 +1,5 @@
+"use server"
+
 import { PrismaClient, Role } from '../../lib/generated/prisma';
 
 const prisma = new PrismaClient();

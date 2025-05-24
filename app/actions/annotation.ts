@@ -1,3 +1,4 @@
+"use server";
 import { PrismaClient, Verdict } from '../../lib/generated/prisma';
 
 const prisma = new PrismaClient();

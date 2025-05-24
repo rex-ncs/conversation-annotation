@@ -7,13 +7,18 @@ export interface Metric {
 
 export interface Conversation {
   id: string 
-  messages: ConversationMessage[]
+  ConversationMessages: ConversationMessage[]
 }
 
 export interface ConversationMessage {
   conversationId: string
   id: number
   turnNumber: number
-  role: "assistant" | "user"
+  role: "assistant" | "user" | "system"
   content: string
+}
+
+export interface User {
+  id: number
+  name: string
 }
