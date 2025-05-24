@@ -11,6 +11,7 @@ datasource db {
 model Users {
   id         Int          @id @default(autoincrement())
   name       String       @unique
+  role       UserRole         @default(USER)
   created_at DateTime     @default(now())
   Annotation Annotation[]
 }
@@ -53,6 +54,11 @@ model Annotation {
   createdAt      DateTime      @default(now())
 
   @@unique([userId, conversationId, metricId], name: "annotations_user_conversation_metric_unique")
+}
+
+enum UserRole {
+  USER
+  ADMIN
 }
 
 enum Role {

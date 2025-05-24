@@ -1,10 +1,15 @@
-import { PrismaClient, Prisma, Role } from "../lib/generated/prisma";
+import { PrismaClient, Prisma, Role, UserRole } from "../lib/generated/prisma";
 
 const prisma = new PrismaClient();
 
 const userData: Prisma.UsersCreateInput[] = [
     {
-        name: "Rex"
+        name: "Rex",
+        role: UserRole.ADMIN,
+    },
+    {
+        name: "Josey",
+        role: UserRole.USER,
     }
 ]
 
