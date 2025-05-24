@@ -1,8 +1,14 @@
 import MetricsTable from "@/app/dashboard/metrics-table";
 import AnnotationsTable from "@/app/dashboard/annotations-table";
 import { getAnnotationsWithDetails } from "../actions/annotation";
+import { redirect } from "next/navigation";
+import { getLoggedInUser } from "../actions/auth";
 
 export default async function Dashboard() {
+  const user = await getLoggedInUser(); // Ensure the user is logged in
+  if (!user) {
+    redirect('/');
+  }
   const annotations = await getAnnotationsWithDetails(); // Fetch annotations data
 
   return (

@@ -1,7 +1,13 @@
+import { redirect } from "next/navigation";
+import { getLoggedInUser } from "../actions/auth";
 import { getMetrics } from "../actions/metrics";
 import { MetricSelection } from "./metric-selection";
 
 export default async function MetricPage() {
+    const user = await getLoggedInUser(); // Ensure the user is logged in
+    if (!user) {
+        redirect('/');
+    }
     const metrics = await getMetrics();
 
     return (

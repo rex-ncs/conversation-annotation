@@ -5,7 +5,7 @@ import Annotation from "./annotation";
 export default async function Annotate() {
     const user = await getLoggedInUser();
     if (!user) {
-      redirect("/login");
+      redirect("/");
     }
 
     return (
