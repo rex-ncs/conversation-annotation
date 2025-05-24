@@ -22,9 +22,11 @@ export default function Annotation({conversationsId, user}: AnnotationProps) {
     const [selectedMetric, setSelectedMetric] = useState<Metric | null>(null);
     const metricId = searchParams.get("metricId");
     const conversationId = searchParams.get("conversationId");
+    let shouldFetchAnnotations = false;
 
     if (conversationId) {
       conversationsId = [conversationId];
+      shouldFetchAnnotations = true;
     }
 
     useEffect(() => {
@@ -93,6 +95,7 @@ export default function Annotation({conversationsId, user}: AnnotationProps) {
                 conversationId={currentConversation.id}
                 metricId={selectedMetric!.id}
                 handleNextConversation={handleNextConversation}
+                shouldFetchAnnotations={shouldFetchAnnotations}
                 isLastConversation={currentIndex === conversationsId.length - 1}
               />
             </div>

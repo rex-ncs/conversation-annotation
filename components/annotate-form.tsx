@@ -1,12 +1,11 @@
 "use client";
-import { create } from "domain";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card"
 import { Label } from "./ui/label";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Textarea } from "./ui/textarea";
-import { useState } from "react";
-import { createAnnotation } from "@/app/actions/annotation";
+import { useEffect, useState } from "react";
+import { createAnnotation, getAnnotation, updateAnnotation } from "@/app/actions/annotation";
 import { Verdict } from "@/lib/generated/prisma";
 import { redirect } from "next/navigation";
 
@@ -15,6 +14,7 @@ interface AnnotateFormProps {
     conversationId: string;
     metricId: number;
     handleNextConversation: () => void;
+    shouldFetchAnnotations: boolean;
     isLastConversation: boolean;
 }
 
@@ -23,11 +23,23 @@ export default function AnnotateForm({
     conversationId,
     metricId,
     handleNextConversation,
+    shouldFetchAnnotations,
     isLastConversation
 }: AnnotateFormProps){
     const [passed, setPassed] = useState<boolean | null>(null);
     const [comment, setComment] = useState<string>("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    useEffect(() => {
+        const fetchAnnotations = async () => {
+            if (!shouldFetchAnnotations) return;
+            const annotation = await getAnnotation({ userId, conversationId, metricId });
+            if (annotation) {
+                setPassed(annotation.verdict === "pass");
+                setComment(annotation.comments || "");
+            }
+        }
+        fetchAnnotations();
+    }, [shouldFetchAnnotations, userId, conversationId, metricId]);
 
     const validateForm = () => {
         if (passed === null) {
@@ -56,7 +68,11 @@ export default function AnnotateForm({
             comments: comment
         }
 
-        const { success, error } = await createAnnotation(payload);
+        const { success, error } = (
+            shouldFetchAnnotations 
+            ? await updateAnnotation(payload) 
+            : await createAnnotation(payload)
+        )
         if (!success) {
             alert(error);
             setIsSubmitting(false);

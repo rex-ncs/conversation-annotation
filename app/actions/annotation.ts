@@ -30,10 +30,23 @@ export async function getAnnotationById(id: number) {
 }
 
 // Update verdict and comments only
-export async function updateAnnotation(id: number, data: { verdict?: Verdict; comments?: string }) {
+export async function updateAnnotation(data: {
+  userId: number;
+  conversationId: string;
+  metricId: number;
+  verdict: Verdict;
+  comments?: string;
+}) {
   try {
     const annotation = await prisma.annotation.update({
-      where: { id },
+      where: { 
+        annotations_user_conversation_metric_unique: {
+          userId: data.userId,
+          conversationId: data.conversationId,
+          metricId: data.metricId,
+        }
+      },
+
       data: {
         verdict: data.verdict,
         comments: data.comments,
@@ -64,4 +77,14 @@ export async function getAnnotationsWithDetails() {
     },
     orderBy: { id: 'desc' },
   });
+}
+
+export async function getAnnotation({ userId, conversationId, metricId }: { userId: number, conversationId: string, metricId: number }) {
+    return await prisma.annotation.findFirst({
+        where: {
+            userId,
+            conversationId,
+            metricId,
+        },
+    });
 }
