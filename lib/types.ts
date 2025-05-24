@@ -22,3 +22,8 @@ export interface User {
   id: number
   name: string
 }
+
+export interface Message {
+  role: "assistant" | "user" | "system"
+  content: string
+}
