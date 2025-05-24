@@ -6,6 +6,7 @@ import { ConversationDisplay } from "@/components/conversation-display";
 import MetricDisplay from "@/components/metric-display";
 import AnnotateForm from "@/components/annotate-form";
 import { getConversationById } from "@/app/actions/conversations";
+import { Button } from "@/components/ui/button";
 
 interface AnnotationProps {
     metrics: Metric[];
@@ -43,6 +44,11 @@ export default function Annotation({metrics, conversationsId, user}: AnnotationP
     const onStartAnnotation = async (metric: Metric) => {
         setSelectedMetric(metric);
     }
+    
+    const onStopAnnotation = () => {
+        setSelectedMetric(null);
+        setCurrentIndex(0)
+    }
 
     if (!selectedMetric) {
         return (
@@ -54,8 +60,6 @@ export default function Annotation({metrics, conversationsId, user}: AnnotationP
         return <div className="text-center text-muted-foreground">Loading conversation...</div>
     }
 
-    console.log(selectedMetric)
-
     return (
       <div className="max-w-7xl mx-auto">
           <div className="mb-6 flex justify-between items-center">
@@ -64,6 +68,7 @@ export default function Annotation({metrics, conversationsId, user}: AnnotationP
                 Conversation {currentIndex + 1} of {conversationsId.length}
               </h2>
             </div>
+            <Button variant={"destructive"} onClick={onStopAnnotation}>Stop Annotation</Button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
