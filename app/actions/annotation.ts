@@ -54,3 +54,14 @@ export async function deleteAnnotation(id: number) {
     return { success: false, error: 'Annotation not found or delete error.' };
   }
 }
+
+// Fetch all annotations with related conversation and metric info
+export async function getAnnotationsWithDetails() {
+  return await prisma.annotation.findMany({
+    include: {
+      conversation: true,
+      metric: true,
+    },
+    orderBy: { id: 'desc' },
+  });
+}

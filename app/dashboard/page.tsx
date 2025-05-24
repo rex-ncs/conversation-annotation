@@ -1,4 +1,5 @@
-import MetricsTable from "@/components/metrics-table";
+import MetricsTable from "@/app/dashboard/metrics-table";
+import AnnotationsTable from "@/app/dashboard/annotations-table";
 
 export default function Dashboard() {
     return (
@@ -7,6 +8,10 @@ export default function Dashboard() {
             <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
             <p className="text-muted-foreground">Overview of all conversations and metrics</p>
             <MetricsTable />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold mb-2">Annotations</h2>
+            <AnnotationsTable />
           </div>
         </main>
     )
