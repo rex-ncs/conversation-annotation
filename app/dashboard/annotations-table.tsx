@@ -1,6 +1,9 @@
 import { getAnnotationsWithDetails } from "@/app/actions/annotation";
 import { Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { redirect } from "next/navigation";
+import { Annotation } from "@/lib/types";
+import EditButton from "@/components/edit-button";
 
 export default async function AnnotationsTable() {
   const annotations = await getAnnotationsWithDetails();
@@ -17,7 +20,7 @@ export default async function AnnotationsTable() {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-100">
-          {annotations.map((a: any) => (
+          {annotations.map((a: Annotation) => (
             <tr key={a.id}>
               <td className="px-4 py-2 font-mono">{a.conversationId}</td>
               <td className="px-4 py-2">{a.metric?.name ?? "-"}</td>
@@ -27,9 +30,7 @@ export default async function AnnotationsTable() {
                 </Badge>
               </td>
               <td className="px-4 py-2">
-                <button className="text-blue-500 hover:text-blue-700" title="Edit">
-                  <Pencil size={18} />
-                </button>
+                <EditButton conversationId={a.conversationId} metricId={a.metricId} />
               </td>
             </tr>
           ))}

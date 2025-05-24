@@ -27,3 +27,13 @@ export interface Message {
   role: "assistant" | "user" | "system"
   content: string
 }
+
+export interface Annotation {
+  id: number
+  conversationId: string
+  metricId: number
+  userId: number
+  verdict: "pass" | "fail"
+  comments: string | null
+  metric?: Metric
+}

@@ -15,7 +15,6 @@ interface AnnotateFormProps {
     conversationId: string;
     metricId: number;
     handleNextConversation: () => void;
-    handlePreviousConversation: () => void;
     isLastConversation: boolean;
 }
 
@@ -24,7 +23,6 @@ export default function AnnotateForm({
     conversationId,
     metricId,
     handleNextConversation,
-    handlePreviousConversation,
     isLastConversation
 }: AnnotateFormProps){
     const [passed, setPassed] = useState<boolean | null>(null);

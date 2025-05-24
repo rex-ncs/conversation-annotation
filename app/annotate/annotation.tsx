@@ -15,12 +15,17 @@ interface AnnotationProps {
 }
 
 export default function Annotation({conversationsId, user}: AnnotationProps) {
+    const router = useRouter();
     const searchParams = useSearchParams();
-    const metricId = searchParams.get("metricId");
     const [currentIndex, setCurrentIndex] = useState(0);
     const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
     const [selectedMetric, setSelectedMetric] = useState<Metric | null>(null);
-    const router = useRouter();
+    const metricId = searchParams.get("metricId");
+    const conversationId = searchParams.get("conversationId");
+
+    if (conversationId) {
+      conversationsId = [conversationId];
+    }
 
     useEffect(() => {
       const fetchMetric = async () => {
@@ -53,18 +58,9 @@ export default function Annotation({conversationsId, user}: AnnotationProps) {
             setCurrentIndex(currentIndex + 1);
         }
     }
-    const handlePreviousConversation = () => {
-        if (currentIndex > 0) {
-            setCurrentIndex(currentIndex - 1);
-        }
-    }
-
-    const onStartAnnotation = async (metric: Metric) => {
-        setSelectedMetric(metric);
-    }
     
     const onStopAnnotation = () => {
-      router.push("/metric")
+      router.back()
     }
 
     if (!currentConversation) {
@@ -97,7 +93,6 @@ export default function Annotation({conversationsId, user}: AnnotationProps) {
                 conversationId={currentConversation.id}
                 metricId={selectedMetric!.id}
                 handleNextConversation={handleNextConversation}
-                handlePreviousConversation={handlePreviousConversation}
                 isLastConversation={currentIndex === conversationsId.length - 1}
               />
             </div>
