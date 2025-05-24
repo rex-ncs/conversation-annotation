@@ -1,11 +1,9 @@
 import { redirect } from "next/navigation";
 import { getLoggedInUser } from "../actions/auth";
 import { getConversations } from "../actions/conversations";
-import { getMetrics } from "../actions/metrics";
 import Annotation from "./annotation";
 
 export default async function Annotate() {
-    const metrics = await getMetrics();
     const conversations = await getConversations();
     const conversationsId = conversations.map((conversation) => conversation.id);
     const user = await getLoggedInUser();
@@ -21,7 +19,7 @@ export default async function Annotate() {
                 Select a metric you want to evaluate for each conversation in this session.
               </p>
             </div>
-            <Annotation metrics={metrics} conversationsId={conversationsId} user={user}/>
+            <Annotation conversationsId={conversationsId} user={user}/>
         </div>
     )
 }

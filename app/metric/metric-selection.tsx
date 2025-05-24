@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -16,15 +17,14 @@ import {
 } from "@/components/ui/select"
 import { Metric } from "@/lib/types"
 
-
 interface MetricSelectionProps {
   availableMetrics: Metric[]
-  onStartAnnotation: (selectedMetric: Metric) => void
 }
 
-export function MetricSelection({ availableMetrics, onStartAnnotation }: MetricSelectionProps) {
+export function MetricSelection({ availableMetrics }: MetricSelectionProps) {
   const [selectedMetricId, setSelectedMetricId] = useState<string>("")
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   const handleMetricChange = (value: string) => {
     setSelectedMetricId(value)
@@ -39,7 +39,7 @@ export function MetricSelection({ availableMetrics, onStartAnnotation }: MetricS
 
     const selectedMetric = availableMetrics.find((metric) => metric.id === Number(selectedMetricId))
     if (selectedMetric) {
-      onStartAnnotation(selectedMetric)
+      router.push("/annotate?metricId=" + selectedMetric.id)
     }
   }
 

@@ -19,14 +19,14 @@ export default function NavBar() {
                 Dashboard
                 </Button>
             </Link>
-            <Link href="/annotate">
+            <Link href="/metric">
                 <Button
                 variant={pathname === "/annotate" ? "outline" : "ghost"}
                 size="sm"
                 className="flex items-center gap-2"
                 >
                 <MessageSquare className="h-4 w-4" />
-                Annotate
+                Start Annotation
                 </Button>
             </Link>
         </nav>
