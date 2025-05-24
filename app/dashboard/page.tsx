@@ -9,11 +9,14 @@ export default async function Dashboard() {
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-          <p className="text-muted-foreground">Overview of all conversations and metrics</p>
+        </div>
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-2">Metrics</h2>
           <MetricsTable />
         </div>
         <div>
           <h2 className="text-2xl font-bold mb-2">Annotations</h2>
+          <p className="text-muted-foreground mb-6">Click on the pencil to edit <b>annotated</b> conversation.</p>
           <AnnotationsTable annotations={annotations}/>
         </div>
       </main>
