@@ -1,7 +1,6 @@
 "use server";
-import { PrismaClient, Verdict } from '../../lib/generated/prisma';
-
-const prisma = new PrismaClient();
+import { Verdict } from '../../lib/generated/prisma';
+import prisma from '../../lib/prisma';
 
 // Create an annotation
 export async function createAnnotation(data: {

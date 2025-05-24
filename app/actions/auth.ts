@@ -1,10 +1,8 @@
 "use server"
 
 import { cookies } from 'next/headers';
-import { PrismaClient } from '../../lib/generated/prisma';
 import { redirect } from 'next/navigation';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export async function register(name: string) {
   try {

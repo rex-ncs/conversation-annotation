@@ -1,8 +1,7 @@
 "use server"
 
-import { PrismaClient, Role } from '../../lib/generated/prisma';
-
-const prisma = new PrismaClient();
+import { Role } from '../../lib/generated/prisma';
+import prisma from '@/lib/prisma';
 
 export async function createConversation(id: string, messages: { role: Role; content: string }[]) {
   try {
