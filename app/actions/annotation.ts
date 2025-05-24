@@ -88,3 +88,19 @@ export async function getAnnotation({ userId, conversationId, metricId }: { user
         },
     });
 }
+
+export async function getUnannotatedConversationsForUserAndMetric(userId: number, metricId: number) {
+  return await prisma.conversations.findMany({
+    where: {
+      Annotation: {
+        none: {
+          userId,
+          metricId,
+        },
+      },
+    },
+    include: {
+      ConversationMessages: true,
+    },
+  });
+}

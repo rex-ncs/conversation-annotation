@@ -8,26 +8,20 @@ import { getConversationById } from "@/app/actions/conversations";
 import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getMetricById } from "../actions/metrics";
+import { getUnannotatedConversationsForUserAndMetric } from "../actions/annotation";
 
 interface AnnotationProps {
-    conversationsId: string[];
     user: User;
 }
 
-export default function Annotation({conversationsId, user}: AnnotationProps) {
+export default function Annotation({user}: AnnotationProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
+    const [conversations, setConversations] = useState<Conversation[]>([]);
     const [selectedMetric, setSelectedMetric] = useState<Metric | null>(null);
     const metricId = searchParams.get("metricId");
     const conversationId = searchParams.get("conversationId");
-    let shouldFetchAnnotations = false;
-
-    if (conversationId) {
-      conversationsId = [conversationId];
-      shouldFetchAnnotations = true;
-    }
 
     useEffect(() => {
       const fetchMetric = async () => {
@@ -46,17 +40,31 @@ export default function Annotation({conversationsId, user}: AnnotationProps) {
     }, [])
 
     useEffect(() => {
-        const fetchConversation = async () => {
+        const fetchConversations = async () => {
             if (!selectedMetric) return;
-            const conversation = await getConversationById(conversationsId[currentIndex]);
-            if (!conversation) return;
-            setCurrentConversation(conversation);
+            if (conversationId) {
+              const conversation = await getConversationById(conversationId!);
+              if (!conversation) {
+                alert("Conversation not found");
+                router.back();
+                return;
+              }
+              setConversations([conversation]);
+              return;
+            }
+            const conversations = await getUnannotatedConversationsForUserAndMetric(user.id, selectedMetric.id);
+            if (!conversations || conversations.length === 0) {
+              alert("No conversations available for annotation");
+              router.back();
+              return;
+            }
+            setConversations(conversations);
         }
-        fetchConversation();
-    }, [currentIndex, conversationsId, selectedMetric]);
+        fetchConversations();
+    }, [conversationId, selectedMetric]);
 
     const handleNextConversation = () => {
-        if (currentIndex < conversationsId.length - 1) {
+        if (currentIndex < conversations.length - 1) {
             setCurrentIndex(currentIndex + 1);
         }
     }
@@ -64,21 +72,26 @@ export default function Annotation({conversationsId, user}: AnnotationProps) {
     const onStopAnnotation = () => {
       router.back()
     }
+    
+    if (conversations.length === 0) {
+      return (
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-3xl font-bold m-2">No Conversations Available</h1>
+          <p className="text-muted-foreground">
+            There are no conversations available for annotation with the selected metric.
+          </p>
+        </div>
+      );
+    }
 
-    if (!currentConversation) {
-        return <div className="text-center text-muted-foreground">Loading conversation...</div>
-    }
-    if (!selectedMetric) {
-      alert("Metric not found");
-      router.push("/metric");
-    }
+    const currentConversation = conversations[currentIndex];
 
     return (
       <div className="max-w-7xl mx-auto">
           <div className="mb-6 flex justify-between items-center">
             <div>
               <h2 className="text-2xl font-bold">
-                Conversation {currentIndex + 1} of {conversationsId.length}
+                Conversation {currentIndex + 1} of {conversations.length}
               </h2>
             </div>
             <Button variant={"destructive"} onClick={onStopAnnotation}>Stop Annotation</Button>
@@ -95,8 +108,8 @@ export default function Annotation({conversationsId, user}: AnnotationProps) {
                 conversationId={currentConversation.id}
                 metricId={selectedMetric!.id}
                 handleNextConversation={handleNextConversation}
-                shouldFetchAnnotations={shouldFetchAnnotations}
-                isLastConversation={currentIndex === conversationsId.length - 1}
+                shouldFetchAnnotations={!!conversationId}
+                isLastConversation={currentIndex === conversations.length - 1}
               />
             </div>
           </div>
