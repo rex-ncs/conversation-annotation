@@ -1,12 +1,21 @@
-import { getAnnotationsWithDetails } from "@/app/actions/annotation";
-import { Pencil } from "lucide-react";
+"use client";
+
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { redirect } from "next/navigation";
 import { Annotation } from "@/lib/types";
 import EditButton from "@/components/edit-button";
 
-export default async function AnnotationsTable() {
-  const annotations = await getAnnotationsWithDetails();
+const PAGE_SIZE = 5;
+
+interface AnnotationsTableProps {
+  annotations: Annotation[];
+}
+
+export default function AnnotationsTable({ annotations }: AnnotationsTableProps) {
+  const [page, setPage] = useState(1);
+
+  const totalPages = Math.ceil(annotations.length / PAGE_SIZE);
+  const paginated = annotations.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div className="overflow-x-auto border rounded-lg mt-8">
@@ -20,12 +29,12 @@ export default async function AnnotationsTable() {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-100">
-          {annotations.map((a: Annotation) => (
+          {paginated.map((a: Annotation) => (
             <tr key={a.id}>
               <td className="px-4 py-2 font-mono">{a.conversationId}</td>
               <td className="px-4 py-2">{a.metric?.name ?? "-"}</td>
               <td className="px-4 py-2">
-                <Badge variant={a.verdict==="pass" ? "default" : "destructive"}>
+                <Badge variant={a.verdict === "pass" ? "default" : "destructive"}>
                   {a.verdict}
                 </Badge>
               </td>
@@ -36,6 +45,25 @@ export default async function AnnotationsTable() {
           ))}
         </tbody>
       </table>
+      <div className="flex justify-center items-center gap-2 py-4">
+        <button
+          className="px-3 py-1 border rounded disabled:opacity-50"
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page === 1}
+        >
+          Prev
+        </button>
+        <span>
+          Page {page} of {totalPages}
+        </span>
+        <button
+          className="px-3 py-1 border rounded disabled:opacity-50"
+          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          disabled={page === totalPages}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }
