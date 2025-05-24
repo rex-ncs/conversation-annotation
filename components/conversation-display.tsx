@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Conversation } from "@/lib/types"
+import ReactMarkdown from "react-markdown"
 
 interface ConversationDisplayProps {
   conversation: Conversation | null
@@ -24,7 +25,7 @@ export function ConversationDisplay({ conversation }: ConversationDisplayProps) 
               className={`p-3 rounded-lg ${message.role === "assistant" ? "bg-primary/10 ml-4" : "bg-muted mr-4"}`}
             >
               <div className="font-semibold mb-1">{message.role === "assistant" ? "Assistant" : "User"}</div>
-              <div>{message.content}</div>
+              <ReactMarkdown>{message.content}</ReactMarkdown>
             </div>
           ))}
         </div>

@@ -87,7 +87,7 @@ export default function Annotation({user}: AnnotationProps) {
     const currentConversation = conversations[currentIndex];
 
     return (
-      <div className="max-w-7xl mx-auto">
+      <div className="w-full lg:w-4/5 mx-auto">
           <div className="mb-6 flex justify-between items-center">
             <div>
               <h2 className="text-2xl font-bold">
@@ -97,11 +97,11 @@ export default function Annotation({user}: AnnotationProps) {
             <Button variant={"destructive"} onClick={onStopAnnotation}>Stop Annotation</Button>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
-            <div className="lg:col-span-3 flex flex-col">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 flex flex-col">
               <ConversationDisplay conversation={currentConversation} />
             </div>
-            <div className="lg:col-span-3 space-y-6">
+            <div className="lg:col-span-1 space-y-6">
               <MetricDisplay metric={selectedMetric!} />
               <AnnotateForm 
                 userId={user.id}
