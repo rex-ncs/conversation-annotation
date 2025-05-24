@@ -78,6 +78,7 @@ export default function Annotation({metrics, conversationsId, user}: AnnotationP
                 metricId={selectedMetric.id}
                 handleNextConversation={handleNextConversation}
                 handlePreviousConversation={handlePreviousConversation}
+                isLastConversation={currentIndex === conversationsId.length - 1}
               />
             </div>
           </div>

@@ -8,6 +8,7 @@ import { Textarea } from "./ui/textarea";
 import { useState } from "react";
 import { createAnnotation } from "@/app/actions/annotation";
 import { Verdict } from "@/lib/generated/prisma";
+import { redirect } from "next/navigation";
 
 interface AnnotateFormProps {
     userId: number;
@@ -15,6 +16,7 @@ interface AnnotateFormProps {
     metricId: number;
     handleNextConversation: () => void;
     handlePreviousConversation: () => void;
+    isLastConversation: boolean;
 }
 
 export default function AnnotateForm({
@@ -22,7 +24,8 @@ export default function AnnotateForm({
     conversationId,
     metricId,
     handleNextConversation,
-    handlePreviousConversation
+    handlePreviousConversation,
+    isLastConversation
 }: AnnotateFormProps){
     const [passed, setPassed] = useState<boolean | null>(null);
     const [comment, setComment] = useState<string>("");
@@ -60,6 +63,10 @@ export default function AnnotateForm({
             alert(error);
             setIsSubmitting(false);
             return;
+        }
+        if (isLastConversation) {
+            alert("All conversations annotated successfully!");
+            redirect("/dashboard")
         }
         handleNextConversation();
         setIsSubmitting(false);
@@ -113,7 +120,8 @@ export default function AnnotateForm({
                 className="w-full"
                 disabled={passed === null || isSubmitting}
             >
-                {isSubmitting ? "Submitting..." : "Submit & Continue"}
+                {isSubmitting ? "Submitting..." : 
+                    isLastConversation ? "Submit & Finish" : "Submit & Continue"}
             </Button>
             </CardFooter>
         </form>
