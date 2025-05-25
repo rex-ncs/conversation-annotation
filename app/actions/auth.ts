@@ -45,3 +45,21 @@ export async function getLoggedInUser() {
   }
   return dbUser;
 }
+
+export async function registerAction(formData: FormData) {
+  const name = formData.get("name") as string;
+  const { success, error } = await register(name);
+  if (!success) {
+    return { error: error};
+  }
+  redirect('/')
+}
+
+export async function loginAction(formData: FormData) {
+  const name = formData.get("name") as string;
+  const { success, error } = await login(name);
+  if (!success) {
+    return { error: error};
+  }
+  redirect('/dashboard')
+}
