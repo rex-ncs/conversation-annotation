@@ -11,6 +11,8 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
     ports:
       - "5432:5432"
+    networks:
+      - app-network
     healthcheck:
       test: ["CMD", "pg_isready"]
       interval: 10s
@@ -20,27 +22,39 @@ services:
   web:
     build:
       context: .
+      dockerfile: Dockerfile.prod
+      args:
+        DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${DB_NAME}
     environment:
       NODE_ENV: production
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${DB_NAME}
     ports:
       - "3000:3000"
+    networks:
+      - app-network
     depends_on:
       db:
         condition: service_healthy
-  
   prisma-studio:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
-    command: ["npx", "prisma", "studio", "--port", "5555"]
-    environment:
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${DB_NAME}
+    image: node:slim
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: npx prisma studio --port 5555 --browser none
     ports:
       - "5555:5555"
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${DB_NAME}
+    networks:
+      - app-network
     depends_on:
       db:
         condition: service_healthy
-
+      web:
+        condition: service_started
+  
+networks:
+  app-network:
+  
 volumes:
   db-data:

@@ -1,18 +1,14 @@
-ARG NODE_VERSION=22.16.0
-FROM node:${NODE_VERSION}-alpine
+FROM node:slim
+
+RUN apt-get update -y \
+&& apt-get install -y openssl
 
 WORKDIR /app
+
 COPY package.json ./
-RUN npm install
 
 COPY . .
 
-# Setup Database
-RUN npx prisma generate
-RUN npx prisma migrate deploy
-RUN npx prisma db push
-RUN npx prisma db seed
+RUN npm ci
 
-# Build the application
-EXPOSE 3000
-CMD ["npm", "run", "start"]
+CMD ["sh", "-c", "npm run db:deploy && npm run build && npm run start"]
