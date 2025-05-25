@@ -1,9 +1,11 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { logout } from "@/app/actions/auth"
 import NavBar from "./nav-bar"
 import { UserCircle } from "lucide-react"
 
-export default async function Header( { username }: { username: string }) {
+export default function Header( { username }: { username: string }) {
 
     return (
       <header className="bg-white shadow">
@@ -17,9 +19,11 @@ export default async function Header( { username }: { username: string }) {
               <UserCircle className="h-5 w-5" />
               <span>{username}</span>
             </div>
-            <Button variant="outline" onClick={logout}>
-              Logout
-            </Button>
+            <form action={logout}>
+              <Button variant="outline" type="submit">
+                Logout
+              </Button>
+            </form>
           </div>
         </div>
       </header>

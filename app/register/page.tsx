@@ -10,36 +10,16 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
-import { register } from "@/app/actions/auth"
-import { useRouter } from "next/navigation"
+import { registerAction } from "../actions/auth"
 
 export default function RegisterPage() {
-  const [name, setName] = useState("")
   const [error, setError] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setIsSubmitting(true)
-    
-    if (!name.trim()) {
-        setError("Name is required")
-        setIsSubmitting(false)
-        return
+  const submitForm = async (formData: FormData) => {
+    const result = await registerAction(formData);
+    if (result?.error) {
+      setError(result.error);
     }
-
-    const { success, error } = await register(name)
-    if (!success && error) {
-        setError(error)
-        setIsSubmitting(false)
-        return
-    } 
-
-    router.push("/")
-    setError(null)
-    setIsSubmitting(false)
   }
 
   return (
@@ -55,7 +35,7 @@ export default function RegisterPage() {
             <CardTitle>Register</CardTitle>
             <CardDescription>Create a new account with just your name</CardDescription>
           </CardHeader>
-          <form onSubmit={handleSubmit}>
+          <form action={submitForm}>
             <CardContent className="space-y-4">
               {error && (
                 <Alert variant="destructive">
@@ -70,14 +50,13 @@ export default function RegisterPage() {
                   id="name"
                   name="name"
                   placeholder="Enter your name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  required
                 />
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? "Registering..." : "Register"}
+              <Button type="submit" className="w-full">
+                Register
               </Button>
               <div className="text-center text-sm">
                 Already have an account?{" "}
