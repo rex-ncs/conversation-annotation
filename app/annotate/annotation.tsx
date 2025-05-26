@@ -102,7 +102,10 @@ export default function Annotation({user}: AnnotationProps) {
           <div className="mb-6 flex justify-between items-center">
             <div>
               <h2 className="text-2xl font-bold">
-                Conversation {currentIndex + 1} of {conversations.length}
+                { conversationId ? 
+                  `Editing Conversation: ${currentConversation.id}` : 
+                  `Number of Annotation Left: ${conversations.length - currentIndex}`
+                }
               </h2>
             </div>
             <Button variant={"destructive"} onClick={onStopAnnotation}>Stop Annotation</Button>
