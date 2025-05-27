@@ -81,3 +81,4 @@ ALTER TABLE "Annotation" ADD CONSTRAINT "Annotation_conversationId_fkey" FOREIGN
 
 -- AddForeignKey
 ALTER TABLE "Annotation" ADD CONSTRAINT "Annotation_metricId_fkey" FOREIGN KEY ("metricId") REFERENCES "Metrics"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
