@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const isProd = process.env.ENVIRONMENT === "production";
+const isProd = process.env.NODE_ENV === "production";
 
 const nextConfig: NextConfig = {
   assetPrefix: isProd ? "/annotate" : "",
