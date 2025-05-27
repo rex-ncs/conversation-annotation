@@ -38,8 +38,8 @@ export function ConversationDisplay({ conversation }: ConversationDisplayProps) 
                   <div
                     className={`p-3 rounded-lg transition-all ${
                       message.role === "user"
-                        ? `bg-white border ${isLastPair ? "border-blue-300 shadow-md" : ""}`
-                        : `bg-gray-100 ${isLastPair ? "bg-blue-50 border border-blue-200 shadow-md" : ""}`
+                        ? `bg-white border ${isLastPair ? "border-blue-500 shadow-md" : ""}`
+                        : `bg-gray-100 ${isLastPair ? "bg-blue-50 border border-blue-500 shadow-md" : ""}`
                     }`}
                   >
                     <ReactMarkdown>{message.content}</ReactMarkdown>
