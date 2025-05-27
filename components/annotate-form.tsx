@@ -55,7 +55,8 @@ export default function AnnotateForm({
         return true;
     }
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
         setIsSubmitting(true)
         if (!validateForm()) {
             return;
@@ -134,7 +135,6 @@ export default function AnnotateForm({
         {/* Submit Button - Full Width Below */}
         <div className="mt-6">
           <Button
-            onClick={handleSubmit}
             type="submit"
             className="w-full bg-gray-600 hover:bg-gray-700"
             disabled={passed === null || isSubmitting}
