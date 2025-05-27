@@ -39,18 +39,20 @@ async function getUserData() {
 }
 
 export async function main() {
-  await prisma.annotation.deleteMany();
-  await prisma.conversationMessages.deleteMany();
-  await prisma.conversations.deleteMany();
-  await prisma.metrics.deleteMany();
-  await prisma.users.deleteMany();
-
   const userData = await getUserData();
   for (const u of userData) {
-    await prisma.users.create({ data: u });
+    await prisma.users.upsert({
+      where: { name: u.name },
+      update: {}, // No fields to update, or specify fields to update if needed
+      create: u,
+    });
   }
   for (const m of metricData) {
-    await prisma.metrics.create({ data: m });
+    await prisma.metrics.upsert({
+      where: { name: m.name },
+      update: {}, // No fields to update, or specify fields to update if needed
+      create: m,
+    });
   }
 }
 
