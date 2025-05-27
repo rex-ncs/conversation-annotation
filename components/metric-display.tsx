@@ -8,21 +8,14 @@ interface MetricDisplayProps {
 
 export default function MetricDisplay({ metric }: MetricDisplayProps){
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                Conversation Metrics
-                {metric && <Badge variant="outline">{metric.name}</Badge>}
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="space-y-3">
-                    <div>
-                        <div className="font-medium">{metric.name}</div>
-                        <div className="text-sm text-muted-foreground">{metric.definition}</div>
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
+      <div className="mb-4 p-3 bg-white rounded-lg border">
+        <div className="flex items-center gap-4">
+          <h2 className="font-medium">Conversation Metrics</h2>
+          <Badge variant="outline">{metric.name}</Badge>
+          <span className="text-sm text-gray-600">
+            {metric.definition}
+          </span>
+        </div>
+      </div>
   )
 }

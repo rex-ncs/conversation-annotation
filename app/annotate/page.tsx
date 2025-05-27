@@ -10,9 +10,8 @@ export default async function Annotate() {
 
     return (
         <div className="w-full mx-auto">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold m-2">Annotation Session</h1>
-              <p className="text-red-500">Instructions: Evaluation should be done only on the last conversation. The conversation history provides the context.</p>
+            <div className="text-center mb-4">
+              <p className="mt-3 text-red-500">Instructions: Evaluation should be done only on the last conversation. The conversation history provides the context.</p>
             </div>
             <Annotation user={user}/>
         </div>

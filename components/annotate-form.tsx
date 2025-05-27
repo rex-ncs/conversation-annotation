@@ -89,56 +89,59 @@ export default function AnnotateForm({
     }
 
     return (
-        <Card>
-        <CardHeader>
-            <CardTitle>Annotate Conversation</CardTitle>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
+      <form onSubmit={handleSubmit}>
+        <div className="grid grid-cols-3 gap-6">
+          {/* Left Column - Evaluation (1/3 width) */}
+          <div className="col-span-1">
+            <h2 className="text-lg font-medium mb-4">Annotate Conversation</h2>
             <div className="space-y-2">
-                <Label>Evaluation</Label>
-                <RadioGroup
+              <Label>Evaluation</Label>
+              <RadioGroup
                 value={passed === null ? "" : passed.toString()}
                 onValueChange={(value) => setPassed(value === "true")}
-                >
+              >
                 <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="true" id="pass" />
-                    <Label htmlFor="pass" className="cursor-pointer">
+                  <RadioGroupItem value="true" id="pass" />
+                  <Label htmlFor="pass" className="cursor-pointer">
                     Pass
-                    </Label>
+                  </Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="false" id="fail" />
-                    <Label htmlFor="fail" className="cursor-pointer">
+                  <RadioGroupItem value="false" id="fail" />
+                  <Label htmlFor="fail" className="cursor-pointer">
                     Fail
-                    </Label>
+                  </Label>
                 </div>
-                </RadioGroup>
+              </RadioGroup>
             </div>
+          </div>
 
+          {/* Right Column - Comments (2/3 width) */}
+          <div className="col-span-2">
             <div className="space-y-2">
-                <Label htmlFor="comment">Comments</Label>
-                <Textarea
+              <Label htmlFor="comment">Comments</Label>
+              <Textarea
                 id="comment"
                 placeholder="Add your comments about this conversation..."
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 className="min-h-[120px]"
-                />
+              />
             </div>
-            </CardContent>
-            <CardFooter>
-            <Button 
-                onClick={handleSubmit} 
-                type="submit"
-                className="w-full"
-                disabled={passed === null || isSubmitting}
-            >
-                {isSubmitting ? "Submitting..." : 
-                    isLastConversation ? "Submit & Finish" : "Submit & Continue"}
-            </Button>
-            </CardFooter>
-        </form>
-        </Card>
+          </div>
+        </div>
+
+        {/* Submit Button - Full Width Below */}
+        <div className="mt-6">
+          <Button
+            onClick={handleSubmit}
+            type="submit"
+            className="w-full bg-gray-600 hover:bg-gray-700"
+            disabled={passed === null || isSubmitting}
+          >
+            {isSubmitting ? "Submitting..." : isLastConversation ? "Submit & Finish" : "Submit & Continue"}
+          </Button>
+        </div>
+      </form>
     )
 }

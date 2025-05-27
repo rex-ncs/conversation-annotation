@@ -98,36 +98,30 @@ export default function Annotation({user}: AnnotationProps) {
     const currentConversation = conversations[currentIndex];
 
     return (
-      <div className="w-full lg:w-4/5 mx-auto">
-          <div className="mb-6 flex justify-between items-center">
-            <div>
-              <h2 className="text-2xl font-bold">
-                { conversationId ? 
-                  `Editing Conversation: ${currentConversation.id}` : 
-                  `Number of Annotation Left: ${conversations.length - currentIndex}`
-                }
-              </h2>
-            </div>
-            <Button variant={"destructive"} onClick={onStopAnnotation}>Stop Annotation</Button>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 flex flex-col">
-              <ConversationDisplay conversation={currentConversation} />
-            </div>
-            <div className="lg:col-span-1 space-y-6">
-              <MetricDisplay metric={selectedMetric!} />
-              <AnnotateForm 
-                userId={user.id}
-                conversationId={currentConversation.id}
-                metricId={selectedMetric!.id}
-                handleNextConversation={handleNextConversation}
-                shouldFetchAnnotations={!!conversationId}
-                isLastConversation={currentIndex === conversations.length - 1}
-              />
-            </div>
-          </div>
+      <>
+      <div className="min-h-screen px-4">
+        {/* Header with annotation count and stop button */}
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-2xl font-bold">
+            { conversationId ? 
+              `Editing Conversation: ${currentConversation.id}` : 
+              `Number of Annotation Left: ${conversations.length - currentIndex}`
+            }
+          </h2>
+          <Button variant="destructive" onClick={onStopAnnotation}>Stop Annotation</Button>
+        </div>
+        <MetricDisplay metric={selectedMetric!} />
+        <ConversationDisplay conversation={currentConversation} />
+        <AnnotateForm 
+          userId={user.id}
+          conversationId={currentConversation.id}
+          metricId={selectedMetric!.id}
+          handleNextConversation={handleNextConversation}
+          shouldFetchAnnotations={!!conversationId}
+          isLastConversation={currentIndex === conversations.length - 1}
+        />
       </div>
+      </>
     );
 
 }
