@@ -66,8 +66,6 @@ export default function Annotation({user}: AnnotationProps) {
             }
             const conversations = await getUnannotatedConversationsForUserAndMetric(user.id, selectedMetric.id);
             if (!conversations || conversations.length === 0) {
-              alert("No conversations available for annotation");
-              router.back();
               return;
             }
             setConversations(shuffleArray(conversations));
