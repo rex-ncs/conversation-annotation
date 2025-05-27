@@ -93,7 +93,8 @@ export default function AnnotateForm({
         <div className="grid grid-cols-3 gap-6">
           {/* Left Column - Evaluation (1/3 width) */}
           <div className="col-span-1">
-            <h2 className="text-lg font-medium mb-4">Annotate Conversation</h2>
+            <h2 className="text-lg font-medium">Annotate Conversation</h2>
+            <p className="text-red-500 mb-2">If the conversation is not relevant to the metric, select pass and provide comment on why it is irrelevant.</p>
             <div className="space-y-2">
               <Label>Evaluation</Label>
               <RadioGroup
