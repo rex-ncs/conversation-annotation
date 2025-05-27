@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { createAnnotation, getAnnotation, updateAnnotation } from "@/app/actions/annotation";
 import { Verdict } from "@/lib/generated/prisma";
 import { redirect } from "next/navigation";
+import { toast } from "sonner";
 
 interface AnnotateFormProps {
     userId: number;
@@ -80,10 +81,11 @@ export default function AnnotateForm({
             return;
         }
         if (isLastConversation) {
-            alert("All conversations annotated successfully!");
+            toast("All conversations annotated successfully!");
             redirect("/dashboard")
         }
         handleNextConversation();
+        toast("Annotation submitted successfully!");
         setIsSubmitting(false);
         setPassed(null);
         setComment("");
