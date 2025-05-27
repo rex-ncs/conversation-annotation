@@ -3,11 +3,13 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
+import bcrypt from 'bcryptjs';
 
-export async function register(name: string) {
+export async function register(name: string, password: string) {
   try {
+    const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.users.create({
-      data: { name },
+      data: { name, password: hashedPassword },
     });
     return { success: true, user };
   } catch (error) {
@@ -15,11 +17,13 @@ export async function register(name: string) {
   }
 }
 
-export async function login(name: string) {
+export async function login(name: string, password: string) {
   const user = await prisma.users.findUnique({ where: { name } });
   if (!user) return { success: false, error: 'User not found.' };
-  (await cookies()).set('user', JSON.stringify(user));
-  return { success: true, user };
+  const isValid = await bcrypt.compare(password, user.password);
+  if (!isValid) return { success: false, error: 'Invalid password.' };
+  (await cookies()).set('user', JSON.stringify({ id: user.id, name: user.name, role: user.role }));
+  return { success: true, user: { id: user.id, name: user.name, role: user.role } };
 }
 
 export async function logout() {
@@ -35,20 +39,20 @@ export async function verify(name: string) {
 export async function getLoggedInUser() {
   const user = (await cookies()).get('user');
   if (!user) {
-    return null
-  };
+    return null;
+  }
   const parsedUser = JSON.parse(user.value);
   const dbUser = await prisma.users.findUnique({ where: { id: parsedUser.id } });
   if (!dbUser) {
-    (await cookies()).delete('user');
-    return null
+    return null;
   }
   return dbUser;
 }
 
 export async function registerAction(formData: FormData) {
   const name = formData.get("name") as string;
-  const { success, error } = await register(name);
+  const password = formData.get("password") as string;
+  const { success, error } = await register(name, password);
   if (!success) {
     return { error: error};
   }
@@ -57,7 +61,8 @@ export async function registerAction(formData: FormData) {
 
 export async function loginAction(formData: FormData) {
   const name = formData.get("name") as string;
-  const { success, error } = await login(name);
+  const password = formData.get("password") as string;
+  const { success, error } = await login(name, password);
   if (!success) {
     return { error: error};
   }

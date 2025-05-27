@@ -1,17 +1,7 @@
 import { PrismaClient, Prisma, Role, UserRole } from "../lib/generated/prisma";
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
-
-const userData: Prisma.UsersCreateInput[] = [
-    {
-        name: "Rex",
-        role: UserRole.ADMIN,
-    },
-    {
-        name: "Josey",
-        role: UserRole.USER,
-    }
-]
 
 const metricData: Prisma.MetricsCreateInput[] = [
   {
@@ -32,6 +22,22 @@ const metricData: Prisma.MetricsCreateInput[] = [
   }
 ]
 
+async function getUserData() {
+  const hashedPassword = await bcrypt.hash('123', 10);
+  return [
+    {
+      name: "Rex",
+      password: hashedPassword,
+      role: UserRole.ADMIN,
+    },
+    {
+      name: "Josey",
+      password: hashedPassword,
+      role: UserRole.USER,
+    }
+  ];
+}
+
 export async function main() {
   await prisma.annotation.deleteMany();
   await prisma.conversationMessages.deleteMany();
@@ -39,6 +45,7 @@ export async function main() {
   await prisma.metrics.deleteMany();
   await prisma.users.deleteMany();
 
+  const userData = await getUserData();
   for (const u of userData) {
     await prisma.users.create({ data: u });
   }
