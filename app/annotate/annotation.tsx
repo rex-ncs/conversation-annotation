@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getMetricById } from "../actions/metrics";
 import { getUnannotatedConversationsForUserAndMetric } from "../actions/annotation";
+import shuffleArray from "@/utils/shuffle";
 
 interface AnnotationProps {
     user: User;
@@ -69,7 +70,7 @@ export default function Annotation({user}: AnnotationProps) {
               router.back();
               return;
             }
-            setConversations(conversations);
+            setConversations(shuffleArray(conversations));
         }
         fetchConversations();
     }, [conversationId, selectedMetric]);
