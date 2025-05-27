@@ -43,13 +43,22 @@ export default function RegisterPage() {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
-
               <div className="grid w-full items-center gap-2 mb-3">
                 <Label htmlFor="name">Name</Label>
                 <Input
                   id="name"
                   name="name"
                   placeholder="Enter your name"
+                  required
+                />
+              </div>
+              <div className="grid w-full items-center gap-2 mb-3">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="Enter your password"
                   required
                 />
               </div>

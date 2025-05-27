@@ -36,6 +36,16 @@ export function LoginForm() {
                 required
               />
             </div>
+            <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Enter your password"
+                required
+              />
+            </div>
             {error && (
               <div className="text-red-500 text-sm mt-2">{error}</div>
             )}
