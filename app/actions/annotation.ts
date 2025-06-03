@@ -103,3 +103,14 @@ export async function getUnannotatedConversationsForUserAndMetric(userId: number
     },
   });
 }
+
+export async function getAnnotationsByMetricWithDetails(metricId: number) {
+  return await prisma.annotation.findMany({
+    where: { metricId },
+    include: {
+      conversation: true,
+      user: true,
+    },
+    orderBy: { conversationId: 'asc' },
+  });
+}

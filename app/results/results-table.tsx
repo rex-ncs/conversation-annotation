@@ -1,96 +1,93 @@
 "use client";
+import { useState, useMemo } from "react";
+import { Metric, User, Annotation } from "@/lib/types";
+import { useRouter, useSearchParams } from "next/navigation";
 
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
-import { useState, useEffect } from "react";
-
-interface User {
-  id: number;
-  name: string;
-}
-interface Metric {
-  id: number;
-  name: string;
-}
-interface Conversation {
-  id: string;
-  Annotation: any[];
-}
+const PAGE_SIZE = 10;
 
 interface ResultsTableProps {
   metrics: Metric[];
   users: User[];
-  initialMetricId: number;
+  annotations: (Annotation & { conversation: { id: string }, user: User })[];
+  selectedMetricId: number;
 }
 
-export default function ResultsTable({ metrics, users, initialMetricId }: ResultsTableProps) {
-  const [metricId, setMetricId] = useState(initialMetricId);
-  const [page, setPage] = useState(1);
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [total, setTotal] = useState(0);
-  const pageSize = 10;
-  const totalPages = Math.ceil(total / pageSize);
+function verdictColor(verdict: string | undefined) {
+  if (verdict === "pass" || verdict === "PASS") return "bg-green-200 text-green-800";
+  if (verdict === "fail" || verdict === "FAIL") return "bg-red-200 text-red-800";
+  return "";
+}
 
-  useEffect(() => {
-    async function fetchData() {
-      const res = await fetch(`/api/results?metricId=${metricId}&page=${page}`);
-      const data = await res.json();
-      setConversations(data.conversations);
-      setTotal(data.total);
-    }
-    fetchData();
-  }, [metricId, page]);
+export default function ResultsTable({ metrics, users, annotations, selectedMetricId }: ResultsTableProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [page, setPage] = useState(0);
 
-  function getVerdict(conversation: any, userId: number) {
-    const ann = conversation.Annotation.find((a: any) => a.userId === userId);
-    return ann ? ann.verdict : "-";
-  }
+  // When metric changes, update URL to trigger server refetch
+  const handleMetricChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newMetricId = e.target.value;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("metricId", newMetricId);
+    router.push(`?${params.toString()}`);
+    setPage(0);
+  };
+
+  // Get unique conversations
+  const conversations = useMemo(() => {
+    const map = new Map();
+    annotations.forEach(a => {
+      if (!map.has(a.conversationId)) map.set(a.conversationId, a.conversation);
+    });
+    return Array.from(map.values());
+  }, [annotations]);
+
+  // Build verdict lookup: { [conversationId]: { [userId]: verdict } }
+  const verdictMap: Record<string, Record<number, string>> = useMemo(() => {
+    const map: Record<string, Record<number, string>> = {};
+    annotations.forEach((a) => {
+      if (!map[a.conversationId]) map[a.conversationId] = {};
+      map[a.conversationId][a.userId] = a.verdict;
+    });
+    return map;
+  }, [annotations]);
+
+  // Pagination
+  const pageCount = Math.ceil(conversations.length / PAGE_SIZE);
+  const pagedConversations = conversations.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   return (
     <div>
-      <form className="mb-6 flex gap-4 items-center" onSubmit={e => e.preventDefault()}>
-        <label htmlFor="metric" className="font-medium">Metric:</label>
-        <Select value={metricId.toString()} onValueChange={v => { setMetricId(Number(v)); setPage(1); }}>
-          <SelectTrigger className="w-64">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {metrics.map((m) => (
-              <SelectItem key={m.id} value={m.id.toString()}>{m.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </form>
-      <div className="overflow-x-auto border rounded-lg">
-        <table className="min-w-full text-sm">
+      <div className="flex gap-4 mb-4 items-center">
+        <label className="font-semibold">Metric:</label>
+        <select
+          className="border rounded px-2 py-1"
+          value={selectedMetricId}
+          onChange={handleMetricChange}
+        >
+          {metrics.map(m => (
+            <option key={m.id} value={m.id}>{m.name}</option>
+          ))}
+        </select>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full border text-sm">
           <thead>
             <tr>
-              <th className="px-4 py-2 border-b bg-gray-50">Conversation ID</th>
-              {users.map((u) => (
-                <th key={u.id} className="px-4 py-2 border-b bg-gray-50">{u.name}</th>
+              <th className="border px-2 py-1 bg-gray-50">Conversation</th>
+              {users.map(u => (
+                <th key={u.id} className="border px-2 py-1 bg-gray-50">{u.name}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {conversations.map((conv) => (
+            {pagedConversations.map(conv => (
               <tr key={conv.id}>
-                <td className="px-4 py-2 border-b font-mono">{conv.id}</td>
-                {users.map((user) => {
-                  const annotation = conv.Annotation.find(a => a.userId === user.id);
+                <td className="border px-2 py-1 max-w-xs truncate" title={conv.id}>{conv.id}</td>
+                {users.map(u => {
+                  const verdict = verdictMap[conv.id]?.[u.id];
                   return (
-                    <td
-                      key={user.id}
-                      className={`
-                        px-4 py-2 text-center
-                        ${
-                          annotation?.verdict === "pass"
-                            ? "bg-green-100 text-green-800"
-                            : annotation?.verdict === "fail"
-                            ? "bg-red-100 text-red-800"
-                            : ""
-                        }
-                      `}
-                    >
-                      {annotation?.verdict ?? "-"}
+                    <td key={u.id} className={`border px-2 py-1 text-center ${verdictColor(verdict)}`}>
+                      {verdict || "-"}
                     </td>
                   );
                 })}
@@ -100,11 +97,17 @@ export default function ResultsTable({ metrics, users, initialMetricId }: Result
         </table>
       </div>
       <div className="flex justify-between items-center mt-4">
-        <span>Page {page} of {totalPages}</span>
-        <div className="flex gap-2">
-          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className={`px-3 py-1 rounded border ${page <= 1 ? 'opacity-50 pointer-events-none' : ''}`}>Prev</button>
-          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className={`px-3 py-1 rounded border ${page >= totalPages ? 'opacity-50 pointer-events-none' : ''}`}>Next</button>
-        </div>
+        <button
+          className="px-3 py-1 border rounded disabled:opacity-50"
+          onClick={() => setPage(p => Math.max(0, p - 1))}
+          disabled={page === 0}
+        >Prev</button>
+        <span>Page {page + 1} of {pageCount}</span>
+        <button
+          className="px-3 py-1 border rounded disabled:opacity-50"
+          onClick={() => setPage(p => Math.min(pageCount - 1, p + 1))}
+          disabled={page >= pageCount - 1}
+        >Next</button>
       </div>
     </div>
   );

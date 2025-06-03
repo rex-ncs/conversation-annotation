@@ -68,3 +68,10 @@ export async function loginAction(formData: FormData) {
   }
   redirect('/dashboard')
 }
+
+export async function getAllUserRole() {
+  return prisma.users.findMany({ 
+    where: { role: { not: "ADMIN" } },
+    orderBy: { name: "asc" }
+  });
+}
