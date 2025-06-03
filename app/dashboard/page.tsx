@@ -9,7 +9,7 @@ export default async function Dashboard() {
   if (!user) {
     redirect('/');
   }
-  const annotations = await getAnnotationsWithDetails(); // Fetch annotations data
+  const annotations = await getAnnotationsWithDetails(user.id); // Fetch only this user's annotations
 
   return (
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
