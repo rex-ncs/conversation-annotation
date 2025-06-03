@@ -4,6 +4,7 @@ import "./globals.css";
 import { getLoggedInUser } from "@/app/actions/auth";
 import Header from "@/components/header";
 import Toast from "./toast";
+import { UserRole } from "@/lib/generated/prisma";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,12 +27,24 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const user = await getLoggedInUser();
+  if (!user) {
+    return (
+      <html lang="en">
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          {children}
+          <Toast />
+        </body>
+      </html>
+    );
+  }
+  const isAdmin = user.role === UserRole.ADMIN;
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {user && <Header username={user.name} />}
+        {user && <Header username={user.name} isAdmin={isAdmin}/>}
         {children}
         <Toast />
       </body>

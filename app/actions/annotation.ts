@@ -68,8 +68,9 @@ export async function deleteAnnotation(id: number) {
 }
 
 // Fetch all annotations with related conversation and metric info
-export async function getAnnotationsWithDetails() {
+export async function getAnnotationsWithDetails(userId?: number) {
   return await prisma.annotation.findMany({
+    where: userId ? { userId } : undefined,
     include: {
       conversation: true,
       metric: true,
@@ -101,5 +102,16 @@ export async function getUnannotatedConversationsForUserAndMetric(userId: number
     include: {
       ConversationMessages: true,
     },
+  });
+}
+
+export async function getAnnotationsByMetricWithDetails(metricId: number) {
+  return await prisma.annotation.findMany({
+    where: { metricId },
+    include: {
+      conversation: true,
+      user: true,
+    },
+    orderBy: { conversationId: 'asc' },
   });
 }
