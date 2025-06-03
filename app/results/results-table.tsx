@@ -2,6 +2,7 @@
 import { useState, useMemo } from "react";
 import { Metric, User, Annotation } from "@/lib/types";
 import { useRouter, useSearchParams } from "next/navigation";
+import { exportConversationsToExcel } from "@/utils/export";
 
 const PAGE_SIZE = 10;
 
@@ -55,6 +56,26 @@ export default function ResultsTable({ metrics, users, annotations, selectedMetr
   const pageCount = Math.ceil(conversations.length / PAGE_SIZE);
   const pagedConversations = conversations.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
+  // Prepare data for export
+  const handleExport = async () => {
+    // Build conversations array with Annotation array for each conversation
+    const conversationsForExport = conversations.map(conv => ({
+      id: conv.id,
+      Annotation: users.map(user => {
+        const verdict = verdictMap[conv.id]?.[user.id];
+        return verdict ? { userId: user.id, verdict } : null;
+      }).filter(Boolean)
+    }));
+    const metricName = metrics.find(m => m.id === selectedMetricId)?.name || "Metric";
+    const blob = await exportConversationsToExcel(conversationsForExport, users, metricName);
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `results-${metricName}.xlsx`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div>
       <div className="flex gap-4 mb-4 items-center">
@@ -68,6 +89,12 @@ export default function ResultsTable({ metrics, users, annotations, selectedMetr
             <option key={m.id} value={m.id}>{m.name}</option>
           ))}
         </select>
+        <button
+          className="ml-auto px-3 py-1 border rounded bg-blue-600 text-white hover:bg-blue-700"
+          onClick={handleExport}
+        >
+          Export to Excel
+        </button>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full border text-sm">
