@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { Metric, User, Annotation } from "@/lib/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import { exportConversationsToExcel } from "@/utils/export";
@@ -23,6 +23,10 @@ export default function ResultsTable({ metrics, users, annotations, selectedMetr
   const router = useRouter();
   const searchParams = useSearchParams();
   const [page, setPage] = useState(0);
+  const [popup, setPopup] = useState<{
+    x: number, y: number, comment: string, verdict: string, convId: string, userId: number
+  } | null>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
 
   // When metric changes, update URL to trigger server refetch
   const handleMetricChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -76,6 +80,35 @@ export default function ResultsTable({ metrics, users, annotations, selectedMetr
     window.URL.revokeObjectURL(url);
   };
 
+  // Find comment for a given conversation and user
+  const getComment = (convId: string, userId: number) => {
+    const ann = annotations.find(a => a.conversationId === convId && a.userId === userId);
+    return ann?.comments || "";
+  };
+
+  // Close popup on click outside or Escape
+  useEffect(() => {
+    if (!popup) return;
+    const handler = (e: MouseEvent | KeyboardEvent) => {
+      if (
+        e instanceof MouseEvent &&
+        popupRef.current &&
+        !popupRef.current.contains(e.target as Node)
+      ) {
+        setPopup(null);
+      }
+      if (e instanceof KeyboardEvent && e.key === "Escape") {
+        setPopup(null);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    document.addEventListener("keydown", handler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("keydown", handler);
+    };
+  }, [popup]);
+
   return (
     <div>
       <div className="flex gap-4 mb-4 items-center">
@@ -112,8 +145,23 @@ export default function ResultsTable({ metrics, users, annotations, selectedMetr
                 <td className="border px-2 py-1 max-w-xs truncate" title={conv.id}>{conv.id}</td>
                 {users.map(u => {
                   const verdict = verdictMap[conv.id]?.[u.id];
+                  const comment = getComment(conv.id, u.id);
                   return (
-                    <td key={u.id} className={`border px-2 py-1 text-center ${verdictColor(verdict)}`}>
+                    <td
+                      key={u.id}
+                      className={`border px-2 py-1 text-center cursor-pointer ${verdictColor(verdict)}`}
+                      onClick={e => {
+                        const rect = (e.target as HTMLElement).getBoundingClientRect();
+                        setPopup({
+                          x: rect.right + window.scrollX + 8,
+                          y: rect.top + window.scrollY,
+                          comment,
+                          verdict: verdict || "-",
+                          convId: conv.id,
+                          userId: u.id
+                        });
+                      }}
+                    >
                       {verdict || "-"}
                     </td>
                   );
@@ -122,6 +170,41 @@ export default function ResultsTable({ metrics, users, annotations, selectedMetr
             ))}
           </tbody>
         </table>
+        {popup && (
+          <div
+            ref={popupRef}
+            style={{
+              position: "absolute",
+              left: popup.x,
+              top: popup.y,
+              zIndex: 1000,
+              minWidth: 200,
+              maxWidth: 320,
+              background: "white",
+              border: "1px solid #ccc",
+              borderRadius: 6,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              padding: "12px",
+              fontSize: "0.95rem"
+            }}
+          >
+            <div className="mb-2 font-semibold">
+              Verdict: <span className={verdictColor(popup.verdict)}>{popup.verdict}</span>
+            </div>
+            <div>
+              <span className="font-semibold">Comment:</span>
+              <div className="mt-1 whitespace-pre-wrap text-gray-700">
+                {popup.comment ? popup.comment : <span className="italic text-gray-400">No comment</span>}
+              </div>
+            </div>
+            <button
+              className="mt-3 px-2 py-1 border rounded text-xs bg-gray-100 hover:bg-gray-200"
+              onClick={() => setPopup(null)}
+            >
+              Close
+            </button>
+          </div>
+        )}
       </div>
       <div className="flex justify-between items-center mt-4">
         <button
