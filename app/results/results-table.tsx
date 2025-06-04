@@ -11,6 +11,7 @@ interface ResultsTableProps {
   users: User[];
   annotations: (Annotation & { conversation: { id: string }, user: User })[];
   selectedMetricId: number;
+  extraScores?: Record<string, boolean>; // Add extraScores prop
 }
 
 function verdictColor(verdict: string | undefined) {
@@ -19,7 +20,7 @@ function verdictColor(verdict: string | undefined) {
   return "";
 }
 
-export default function ResultsTable({ metrics, users, annotations, selectedMetricId }: ResultsTableProps) {
+export default function ResultsTable({ metrics, users, annotations, selectedMetricId, extraScores }: ResultsTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [page, setPage] = useState(0);
@@ -134,6 +135,8 @@ export default function ResultsTable({ metrics, users, annotations, selectedMetr
           <thead>
             <tr>
               <th className="border px-2 py-1 bg-gray-50">Conversation</th>
+              {/* Extra Score column header */}
+              {extraScores && <th className="border px-2 py-1 bg-gray-50">Score</th>}
               {users.map(u => (
                 <th key={u.id} className="border px-2 py-1 bg-gray-50">{u.name}</th>
               ))}
@@ -143,6 +146,20 @@ export default function ResultsTable({ metrics, users, annotations, selectedMetr
             {pagedConversations.map(conv => (
               <tr key={conv.id}>
                 <td className="border px-2 py-1 max-w-xs truncate" title={conv.id}>{conv.id}</td>
+                {/* Extra Score cell */}
+                {extraScores && (
+                  <td
+                    className={`border px-2 py-1 text-center ${
+                      verdictColor(extraScores[conv.id] === true ? "pass" : extraScores[conv.id] === false ? "fail" : undefined)
+                    }`}
+                  >
+                    {extraScores[conv.id] === true
+                      ? "pass"
+                      : extraScores[conv.id] === false
+                        ? "fail"
+                        : <span className="text-gray-400 italic">-</span>}
+                  </td>
+                )}
                 {users.map(u => {
                   const verdict = verdictMap[conv.id]?.[u.id];
                   const comment = getComment(conv.id, u.id);
