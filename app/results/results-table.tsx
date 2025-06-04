@@ -11,7 +11,7 @@ interface ResultsTableProps {
   users: User[];
   annotations: (Annotation & { conversation: { id: string }, user: User })[];
   selectedMetricId: number;
-  extraScores?: Record<string, boolean>; // Add extraScores prop
+  extraScoresByFile?: Record<string, Record<string, boolean>>; // New prop for multiple score files
 }
 
 function verdictColor(verdict: string | undefined) {
@@ -20,7 +20,7 @@ function verdictColor(verdict: string | undefined) {
   return "";
 }
 
-export default function ResultsTable({ metrics, users, annotations, selectedMetricId, extraScores }: ResultsTableProps) {
+export default function ResultsTable({ metrics, users, annotations, selectedMetricId, extraScoresByFile }: ResultsTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [page, setPage] = useState(0);
@@ -135,8 +135,10 @@ export default function ResultsTable({ metrics, users, annotations, selectedMetr
           <thead>
             <tr>
               <th className="border px-2 py-1 bg-gray-50">Conversation</th>
-              {/* Extra Score column header */}
-              {extraScores && <th className="border px-2 py-1 bg-gray-50">Score</th>}
+              {/* Render a column for each extra score file */}
+              {extraScoresByFile && Object.keys(extraScoresByFile).map(fileName => (
+                <th key={fileName} className="border px-2 py-1 bg-gray-50">{fileName.replace("evaluation_", "").replace(/\.json$/, "")}</th>
+              ))}
               {users.map(u => (
                 <th key={u.id} className="border px-2 py-1 bg-gray-50">{u.name}</th>
               ))}
@@ -146,20 +148,19 @@ export default function ResultsTable({ metrics, users, annotations, selectedMetr
             {pagedConversations.map(conv => (
               <tr key={conv.id}>
                 <td className="border px-2 py-1 max-w-xs truncate" title={conv.id}>{conv.id}</td>
-                {/* Extra Score cell */}
-                {extraScores && (
+                {/* Render a cell for each extra score file */}
+                {extraScoresByFile && Object.entries(extraScoresByFile).map(([fileName, scoreMap]) => (
                   <td
-                    className={`border px-2 py-1 text-center ${
-                      verdictColor(extraScores[conv.id] === true ? "pass" : extraScores[conv.id] === false ? "fail" : undefined)
-                    }`}
+                    key={fileName}
+                    className={`border px-2 py-1 text-center ${verdictColor(scoreMap[conv.id] === true ? "pass" : scoreMap[conv.id] === false ? "fail" : undefined)}`}
                   >
-                    {extraScores[conv.id] === true
+                    {scoreMap[conv.id] === true
                       ? "pass"
-                      : extraScores[conv.id] === false
+                      : scoreMap[conv.id] === false
                         ? "fail"
                         : <span className="text-gray-400 italic">-</span>}
                   </td>
-                )}
+                ))}
                 {users.map(u => {
                   const verdict = verdictMap[conv.id]?.[u.id];
                   const comment = getComment(conv.id, u.id);
